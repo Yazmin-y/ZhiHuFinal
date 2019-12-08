@@ -8,11 +8,13 @@
 
 import UIKit
 import Alamofire
+import AlamofireImage
+
 
 // MARK: - LatestNews
 struct LatestNews: Codable {
     let date: String
-    let stories, topStories: [Story]
+    var stories, topStories: [Story]
 
     enum CodingKeys: String, CodingKey {
         case date, stories
@@ -173,6 +175,7 @@ extension DataRequest {
     }
 }
 
+//MARK: - DataRequest
 struct newsHelper {
     static func dataManager(url: String, success: @escaping (([String: Any?]) -> ()),failure: ((Error) -> ())? = nil ){
         Alamofire.request(url).responseJSON{ response in
@@ -198,17 +201,29 @@ struct newsHelper {
     }
 }
 
+
 struct latestNewsHelper {
     static func getLatestNews(success: @escaping (LatestNews) -> (), failure: @escaping (Error) -> ()){
         newsHelper.dataManager(url: "https://news-at.zhihu.com/api/4/news/latest", success: {dic in
+            
             if let data = try?JSONSerialization.data(withJSONObject: dic, options: JSONSerialization.WritingOptions.init(rawValue: 0)), let latestnews = try? LatestNews(data: data) {
                 success(latestnews)
+              
             }
         }, failure:{ error in
             failure(error)
         })
+        
     }
 }
 
 
+extension UIImageView {
+    func setImageUrl(string: String?) {
+        if(string != nil) {
+           let url = URL(string: string!)!
+            self.af_setImage(withURL: url)
+        }
+    }
+}
 

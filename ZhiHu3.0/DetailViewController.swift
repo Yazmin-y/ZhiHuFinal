@@ -10,11 +10,12 @@ import UIKit
 import Alamofire
 import AlamofireImage
 import WebKit
+import SnapKit
 
 class DetailViewController: UIViewController {
     var imageHeight: CGFloat = 200
     var webView: WKWebView!
-    var toolBar: UIToolbar!
+    var toolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 40))
     var navigationBarBackgroundImg: UIView? {
         return (navigationController?.navigationBar.subviews.first)
     }
@@ -25,26 +26,30 @@ class DetailViewController: UIViewController {
         }
         return scrollView
     }
-    var story: Story! {
-        didSet {
-            self.navigationItem.title = story.title
-            requestContent()
-        }
-    }
+    
+//    var story: Story! {
+//        didSet {
+//            self.navigationItem.title = story.title
+//            requestContent()
+//        }
+//    }
+    
     override func loadView() {
         let webConfiguration = WKWebViewConfiguration()
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeigh), configuration: webConfiguration)
         webView.uiDelegate = self
         webView.backgroundColor = .white
-        webView.addSubview(imgView)
         webView.clipsToBounds = false
 
         view = webView
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpBanner()
-        guard let myURL = URL(string: story.url) else { return  }
+        setUpToolBar()
+        guard let myURL = URL(string: ViewController.news.stories[ViewController.row].url) else { return  }
+        print(myURL)
         let myRequest = URLRequest(url: myURL)
         webView.load(myRequest)
     }
@@ -56,16 +61,14 @@ class DetailViewController: UIViewController {
     }
     
     func requestContent() {
-        request(story.url, method: .get).responseJSON { (response) in
+        request(ViewController.news.stories[ViewController.row].url, method: .get).responseJSON { (response) in
             switch response.result {
             
             case .success(let json as [String: Any]):
-                guard let image = json["image"] as? String, let imageURL = URL(string: image), let body = json["body"] as? String, let css = json["css"] as? [String]
+                guard let body = json["body"] as? String, let css = json["css"] as? [String]
                     else {
                         return
                 }
-                
-                self.imgView.af_setImage(withURL: imageURL)
                 let html = self.concatHTML(css: css, body: body)
                 self.webView.loadHTMLString(html, baseURL: nil)
             
@@ -94,6 +97,31 @@ class DetailViewController: UIViewController {
         return html
     }
     
+    func setUpToolBar() {
+        let commentButton = UIBarButtonItem(title: "评论", style: .plain, target: self, action: #selector(pushComment))
+        let butGap = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        butGap.width = screenWidth/3 + 25
+        let buttons: [UIBarButtonItem] = [butGap ,commentButton]
+        
+        toolBar.barStyle = .default
+        toolBar.isTranslucent = true
+        toolBar.setItems(buttons, animated: true)
+        view.addSubview(toolBar)
+        toolBar.snp.makeConstraints { make in
+            make.left.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.width.equalTo(screenWidth)
+            make.height.equalTo(60)
+        }
+        
+    }
+    
+    @objc func pushComment() {
+        navigationController?.pushViewController(CommentViewController(), animated: true)
+    }
+    
+    
+    
 }
 extension DetailViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -103,3 +131,9 @@ extension DetailViewController: UIScrollViewDelegate {
 extension DetailViewController: WKUIDelegate {
     
 }
+
+extension DetailViewController: UIToolbarDelegate {
+    
+}
+
+
