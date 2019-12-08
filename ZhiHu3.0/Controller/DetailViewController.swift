@@ -40,7 +40,6 @@ class DetailViewController: UIViewController {
         webView.uiDelegate = self
         webView.backgroundColor = .white
         webView.clipsToBounds = false
-
         view = webView
     }
     
@@ -51,6 +50,7 @@ class DetailViewController: UIViewController {
         guard let myURL = URL(string: ViewController.news.stories[ViewController.row].url) else { return  }
         print(myURL)
         let myRequest = URLRequest(url: myURL)
+        
         webView.load(myRequest)
     }
     
@@ -60,47 +60,49 @@ class DetailViewController: UIViewController {
         imgView.clipsToBounds = true
     }
     
-    func requestContent() {
-        request(ViewController.news.stories[ViewController.row].url, method: .get).responseJSON { (response) in
-            switch response.result {
-            
-            case .success(let json as [String: Any]):
-                guard let body = json["body"] as? String, let css = json["css"] as? [String]
-                    else {
-                        return
-                }
-                let html = self.concatHTML(css: css, body: body)
-                self.webView.loadHTMLString(html, baseURL: nil)
-            
-            case .failure(_):
-                fatalError()
-            
-            @unknown default:
-                break;
-            }
-        }
-    }
-    
-    func concatHTML(css: [String], body: String) -> String {
-        var html = "<html>"
-        html += "<head>"
-        css.forEach { html += "<link rel=\"stylesheet\" href=\($0)>"}
-        html += "<style>img{max-width:320px !important;}</style>"
-        html += "</head>"
-        
-        html += "<body>"
-        html += body
-        html += "</body>"
-        
-        html += "</html>"
-        
-        return html
-    }
+//    func requestContent() {
+//        request(ViewController.news.stories[ViewController.row].url, method: .get).responseJSON { (response) in
+//            switch response.result {
+//
+//            case .success(let json as [String: Any]):
+//                guard let body = json["body"] as? String, let css = json["css"] as? [String], let image = json["image"] as? String,
+//                let imageURL = URL(string: image.replacingOccurrences(of: "http", with: "https"))
+//                    else {
+//                        return
+//                }
+//                self.imgView.af_setImage(withURL: imageURL)
+//                let html = self.concatHTML(css: css, body: body)
+//                self.webView.loadHTMLString(html, baseURL: nil)
+//
+//            case .failure(_):
+//                fatalError()
+//
+//            @unknown default:
+//                break;
+//            }
+//        }
+//    }
+//
+//    func concatHTML(css: [String], body: String) -> String {
+//        var html = "<html>"
+//        html += "<head>"
+//        css.forEach { html += "<link rel=\"stylesheet\" href=\($0)>"}
+//        html += "<style>img{max-width:320px !important;}</style>"
+//        html += "</head>"
+//
+//        html += "<body>"
+//        html += body
+//        html += "</body>"
+//
+//        html += "</html>"
+//
+//        return html
+//    }
     
     func setUpToolBar() {
-        let commentButton = UIBarButtonItem(title: "评论", style: .plain, target: self, action: #selector(pushComment))
+        let commentButton = UIBarButtonItem(title: "查看评论", style: .plain, target: self, action: #selector(pushComment))
         let butGap = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-        butGap.width = screenWidth/3 + 25
+        butGap.width = screenWidth/3 + 15
         let buttons: [UIBarButtonItem] = [butGap ,commentButton]
         
         toolBar.barStyle = .default
@@ -128,6 +130,7 @@ extension DetailViewController: UIScrollViewDelegate {
        
     }
 }
+
 extension DetailViewController: WKUIDelegate {
     
 }

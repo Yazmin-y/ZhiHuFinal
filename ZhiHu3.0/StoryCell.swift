@@ -19,8 +19,6 @@ class StoryCell: UITableViewCell {
         didSet {
             self.titleLabel.text = story.title
             self.img.af_setImage(withURL: imgURL)
-            self.addSubview(titleLabel)
-            self.addSubview(img)
         }
         
     }
@@ -28,3 +26,5 @@ class StoryCell: UITableViewCell {
         self.story = story
     }
 }
+
+

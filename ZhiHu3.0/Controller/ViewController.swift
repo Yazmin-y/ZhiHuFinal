@@ -13,8 +13,8 @@ import MJRefresh
 
 let screenWidth = UIScreen.main.bounds.width
 let screenHeigh = UIScreen.main.bounds.height
-let imageWidth = 150
-let imageHeight = 100
+let imageWidth = 80
+let imageHeight = 70
 var storyImg: [String] = []
 var imageView: [UIImageView] = []
 let header = MJRefreshNormalHeader()
@@ -36,11 +36,20 @@ class ViewController: UIViewController {
         
         loadStories()
         
-        setUpTableView()
+        setRefresh()
         
         setUpNavigation()
         
-        setRefresh()
+        setUpTableView()
+//        if ViewController.news != nil {
+//        setUpTableView()
+//
+//        setUpNavigation()
+//
+//        setRefresh()
+//        } else {
+//            loadStories()
+//        }
         // Do any additional setup after loading the view.
         
     }
@@ -59,11 +68,14 @@ class ViewController: UIViewController {
         footer.setTitle("没有更多新闻啦", for: .noMoreData)
         self.tableView.mj_footer = footer
     }
+    
     func loadStories() {
           latestNewsHelper.getLatestNews(success: { news in
               ViewController.self.news = news
             self.tableView.reloadData()
             self.setUpBanner()
+//            self.setUpTableView()
+            print(news.stories)
           }) { (error) in
               print("error")
           }
@@ -121,20 +133,35 @@ class ViewController: UIViewController {
         for i in 0..<ViewController.news.topStories.count{
 //            print(ViewController.news.topStories[i])
         if let imgURLString = ViewController.news.topStories[i].image {
-            let bannerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 50))
+            let bannerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 60))
             bannerLabel.numberOfLines = 1
             bannerLabel.text = ViewController.news.topStories[i].title
             bannerLabel.textAlignment = .natural
             bannerLabel.backgroundColor = .lightText
             bannerLabel.textColor = .black
+            bannerLabel.font = UIFont.preferredFont(forTextStyle: .headline)
+            let detailLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 20))
+            detailLabel.numberOfLines = 1
+            detailLabel.text = ViewController.news.topStories[i].hint
+            detailLabel.textAlignment = .left
+            detailLabel.backgroundColor = .clear
+            detailLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
             let image = UIImageView(frame: CGRect(x: screenWidth * CGFloat(i), y: 0, width: screenWidth, height: screenWidth - 10))
             image.setImageUrl(string: imgURLString)
+            
             image.addSubview(bannerLabel)
+            bannerLabel.addSubview(detailLabel)
             bannerLabel.snp.makeConstraints { make in
                 make.bottom.equalToSuperview()
                 make.left.equalToSuperview()
                 make.width.equalTo(screenWidth)
                 make.height.equalTo(60)
+            }
+            detailLabel.snp.makeConstraints { make in
+                make.bottom.equalToSuperview().offset(-5)
+                make.left.equalToSuperview()
+                make.height.equalTo(20)
+                make.width.equalToSuperview()
             }
             img.append(image)
 //            print(img[i])
@@ -185,31 +212,31 @@ extension ViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: "Story")
+//        var cell = tableView.dequeueReusableCell(withIdentifier: "Story")
 //        cell?.img = nil
 //        cell?.configure(for: news.stories[indexPath.row])
-        if cell == nil {
-            cell = UITableViewCell(style: .default, reuseIdentifier: "Story")
-        }
-        cell?.textLabel?.text = ViewController.news.stories[indexPath.row].title
-        cell?.detailTextLabel?.text = ViewController.news.stories[indexPath.row].hint
-        cell?.detailTextLabel?.textColor = .black
+//        if cell == nil {
+        let cell = UITableViewCell(style: .default, reuseIdentifier: "Story")
+//        }
+        cell.textLabel?.text = ViewController.news.stories[indexPath.row].title
+        cell.detailTextLabel?.text = ViewController.news.stories[indexPath.row].hint
+        cell.detailTextLabel?.textColor = .black
         let imgView = UIImageView()
         if ViewController.news == nil {
             loadStories()
             print("empty")
         }
-        if let imgURL = ViewController.news.stories[indexPath.row].image {
+        let imgURL = ViewController.news.stories[indexPath.row].images?[0]
         imgView.setImageUrl(string: imgURL)
-        cell?.contentView.addSubview(imgView)
+        cell.contentView.addSubview(imgView)
         imgView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(5)
-            make.right.equalToSuperview()
+            make.top.equalToSuperview().offset(15)
+            make.right.equalToSuperview().offset(-10)
             make.width.equalTo(imageWidth)
             make.height.equalTo(imageHeight)
         }
-            print(imgURL)
-        }
+        print(imgURL as Any)
+        
 //        let cellLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 30))
 //        cellLabel.font = UIFont.preferredFont(forTextStyle: .headline)
 //        cellLabel.text = news.stories[indexPath.row].title
@@ -228,15 +255,15 @@ extension ViewController: UITableViewDataSource {
         detailLabel.text = ViewController.news.stories[indexPath.row].hint
         detailLabel.textAlignment = .left
         detailLabel.textColor = .lightGray
-        cell?.contentView.addSubview(detailLabel)
+        cell.contentView.addSubview(detailLabel)
         detailLabel.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(20)
             make.width.equalTo(screenWidth)
             make.height.equalTo(30)
             make.bottom.equalToSuperview().offset(-5)
         }
-        cell?.selectionStyle = .none
-        return cell!
+        cell.selectionStyle = .none
+        return cell
     }
 }
 
@@ -257,6 +284,7 @@ extension ViewController: UITableViewDelegate {
 //MARK: - RefreshFunc
 extension ViewController {
     @objc func headerRefresh() {
+        loadStories()
         self.tableView.reloadData()
         self.banner.reloadInputViews()
         self.tableView.mj_header?.endRefreshing()

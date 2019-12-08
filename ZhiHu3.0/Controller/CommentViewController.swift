@@ -39,7 +39,6 @@ class CommentViewController: UIViewController {
         }
     }
     
-    
     func setUpTableView() {
         tableView.backgroundColor = .white
         tableView.rowHeight = 100
@@ -70,7 +69,9 @@ class CommentViewController: UIViewController {
            header.setTitle("没有更多评论啦", for: .noMoreData)
            self.tableView.mj_header = header
        }
+    
     @objc func headerRefresh() {
+        loadComment()
         self.tableView.reloadData()
         self.tableView.mj_header?.endRefreshing()
     }
@@ -86,11 +87,13 @@ extension CommentViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 //        var cell = tableView.dequeueReusableCell(withIdentifier: "Comment")
+        
         let cell = UITableViewCell(style: .default, reuseIdentifier: "Comment")
         
         let authorLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth - 20, height: 20))
         let contentLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth - 20, height: 35))
         let timeLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth - 20, height: 15))
+        
         authorLabel.text = comment.comments[indexPath.row].author
         authorLabel.textAlignment = .left
         authorLabel.textColor = .black
@@ -103,19 +106,21 @@ extension CommentViewController: UITableViewDataSource {
             make.height.equalTo(20)
             make.width.equalTo(screenWidth - 20)
         }
+        
         contentLabel.text = comment.comments[indexPath.row].content
         contentLabel.textAlignment = .left
         contentLabel.textColor = .black
         contentLabel.backgroundColor = .clear
-        contentLabel.numberOfLines = 2
-        contentLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        contentLabel.numberOfLines = 3
+        contentLabel.font = UIFont.preferredFont(forTextStyle: .body)
         cell.contentView.addSubview(contentLabel)
         contentLabel.snp.makeConstraints { make in
             make.top.equalTo(authorLabel.snp.bottom).offset(10)
             make.left.equalTo(authorLabel.snp.left)
             make.height.equalTo(35)
-            make.width.equalTo(authorLabel.snp.width)
+            make.width.equalTo(screenWidth - 80)
         }
+        
         timeLabel.text = String(comment.comments[indexPath.row].time)
         timeLabel.textAlignment = .left
         timeLabel.textColor = .lightGray
@@ -128,6 +133,18 @@ extension CommentViewController: UITableViewDataSource {
             make.height.equalTo(15)
             make.width.equalTo(authorLabel.snp.width)
         }
+        
+        let imgView = UIImageView()
+        let imgURL = comment.comments[indexPath.row].avatar
+        imgView.setImageUrl(string: imgURL)
+        cell.contentView.addSubview(imgView)
+        imgView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(25)
+            make.right.equalToSuperview().offset(-10)
+            make.width.equalTo(60)
+            make.height.equalTo(60)
+        }
+        print(imgURL as Any)
         
         return cell
     }
