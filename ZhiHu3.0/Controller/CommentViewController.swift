@@ -15,26 +15,29 @@ class CommentViewController: UIViewController {
     lazy var tableView = UITableView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: view.bounds.height), style: .grouped)
     var comment: LongComment!
     let header = MJRefreshNormalHeader()
+    
+// MARK: - LifeCircle
     override func loadView() {
         super.loadView()
         loadComment()
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-//        loadComment()
+
         setUpTableView()
-//        setUpNavigation()
+
         setRefresh()
     }
     
-//MARK: - SetUp-Func
+// MARK: - SetUp-Func
     func loadComment() {
         CommentRequest.getComment(success: { (comment) in
             self.comment = comment
             self.tableView.reloadData()
             self.setUpNavigation()
             print(comment)
-        }) { (error) in
+        }) { error in
             print("error")
         }
     }
@@ -77,7 +80,7 @@ class CommentViewController: UIViewController {
     }
 }
 
-//MARK: - TableViewDataSource
+// MARK: - TableViewDataSource
 extension CommentViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if comment == nil { return 0 } else {
@@ -86,8 +89,6 @@ extension CommentViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        var cell = tableView.dequeueReusableCell(withIdentifier: "Comment")
-        
         let cell = UITableViewCell(style: .default, reuseIdentifier: "Comment")
         
         let authorLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth - 20, height: 20))
@@ -144,15 +145,14 @@ extension CommentViewController: UITableViewDataSource {
             make.width.equalTo(60)
             make.height.equalTo(60)
         }
-        print(imgURL as Any)
-        
+
         return cell
     }
     
     
 }
 
-//MARK: - TableViewDelegate
+// MARK: - TableViewDelegate
 extension CommentViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 120

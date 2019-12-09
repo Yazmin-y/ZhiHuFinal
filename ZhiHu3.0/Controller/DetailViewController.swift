@@ -16,24 +16,9 @@ class DetailViewController: UIViewController {
     var imageHeight: CGFloat = 200
     var webView: WKWebView!
     var toolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 40))
-    var navigationBarBackgroundImg: UIView? {
-        return (navigationController?.navigationBar.subviews.first)
-    }
     var imgView: UIImageView!
-    var webScrollView: UIScrollView {
-        guard let scrollView = webView.subviews[0] as? UIScrollView else {
-            fatalError()
-        }
-        return scrollView
-    }
-    
-//    var story: Story! {
-//        didSet {
-//            self.navigationItem.title = story.title
-//            requestContent()
-//        }
-//    }
-    
+
+// MARK: - LifeCircle
     override func loadView() {
         let webConfiguration = WKWebViewConfiguration()
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeigh), configuration: webConfiguration)
@@ -48,56 +33,16 @@ class DetailViewController: UIViewController {
         setUpBanner()
         setUpToolBar()
         guard let myURL = URL(string: ViewController.news.stories[ViewController.row].url) else { return  }
-        print(myURL)
         let myRequest = URLRequest(url: myURL)
-        
         webView.load(myRequest)
     }
     
+// MARK: - SetUp Func
     func setUpBanner() {
         imgView = UIImageView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: imageHeight))
         imgView.contentMode = .scaleAspectFill
         imgView.clipsToBounds = true
     }
-    
-//    func requestContent() {
-//        request(ViewController.news.stories[ViewController.row].url, method: .get).responseJSON { (response) in
-//            switch response.result {
-//
-//            case .success(let json as [String: Any]):
-//                guard let body = json["body"] as? String, let css = json["css"] as? [String], let image = json["image"] as? String,
-//                let imageURL = URL(string: image.replacingOccurrences(of: "http", with: "https"))
-//                    else {
-//                        return
-//                }
-//                self.imgView.af_setImage(withURL: imageURL)
-//                let html = self.concatHTML(css: css, body: body)
-//                self.webView.loadHTMLString(html, baseURL: nil)
-//
-//            case .failure(_):
-//                fatalError()
-//
-//            @unknown default:
-//                break;
-//            }
-//        }
-//    }
-//
-//    func concatHTML(css: [String], body: String) -> String {
-//        var html = "<html>"
-//        html += "<head>"
-//        css.forEach { html += "<link rel=\"stylesheet\" href=\($0)>"}
-//        html += "<style>img{max-width:320px !important;}</style>"
-//        html += "</head>"
-//
-//        html += "<body>"
-//        html += body
-//        html += "</body>"
-//
-//        html += "</html>"
-//
-//        return html
-//    }
     
     func setUpToolBar() {
         let commentButton = UIBarButtonItem(title: "查看评论", style: .plain, target: self, action: #selector(pushComment))
@@ -121,14 +66,11 @@ class DetailViewController: UIViewController {
     @objc func pushComment() {
         navigationController?.pushViewController(CommentViewController(), animated: true)
     }
-    
-    
-    
 }
+
+// MARK: - Delegates
 extension DetailViewController: UIScrollViewDelegate {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-       
-    }
+
 }
 
 extension DetailViewController: WKUIDelegate {

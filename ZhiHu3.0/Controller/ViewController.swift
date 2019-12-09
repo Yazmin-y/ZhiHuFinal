@@ -22,13 +22,15 @@ let footer = MJRefreshAutoNormalFooter()
 
 
 class ViewController: UIViewController {
+    
     let banner = UIScrollView()
-    lazy var tableView = UITableView(frame: CGRect(x: 0, y: 520, width: screenWidth, height: screenHeigh), style: .grouped)
+    lazy var tableView = UITableView(frame: CGRect(x: 0, y: 512, width: screenWidth, height: screenHeigh), style: .grouped)
     static var news: LatestNews!
     static var row: Int!
+  
+// MARK: - LifeCircle
     override func loadView() {
         super.loadView()
-//        loadStories()
     }
     
     override func viewDidLoad() {
@@ -41,22 +43,12 @@ class ViewController: UIViewController {
         setUpNavigation()
         
         setUpTableView()
-//        if ViewController.news != nil {
-//        setUpTableView()
-//
-//        setUpNavigation()
-//
-//        setRefresh()
-//        } else {
-//            loadStories()
-//        }
-        // Do any additional setup after loading the view.
         
     }
-//MARK: - SetUp-Func
     
+// MARK: - SetUp-Func
     
-//    MARK: Load
+// MARK: Load
     func setRefresh() {
         header.setRefreshingTarget(self, refreshingAction: #selector(headerRefresh))
         header.setTitle("正在刷新", for: .pulling)
@@ -74,14 +66,13 @@ class ViewController: UIViewController {
               ViewController.self.news = news
             self.tableView.reloadData()
             self.setUpBanner()
-//            self.setUpTableView()
-            print(news.stories)
-          }) { (error) in
+          }) { error in
               print("error")
           }
          
           }
-//    MARK: Navigation
+    
+// MARK: Navigation
     func setUpNavigation() {
         navigationItem.title = "知乎日报"
         let today = Date()
@@ -90,20 +81,22 @@ class ViewController: UIViewController {
         hour.locale = Locale.current
         let timeString = hour.string(from: today)
         let timeInt = Int(timeString)
-        if timeInt! >= 0 && timeInt! <= 4 {
-            navigationItem.title = "不要熬夜"
-        }
-        else if timeInt! > 4 && timeInt! <= 10 {
-            navigationItem.title = "早上好"
-        }
-        else if timeInt! > 11 && timeInt! <= 13 {
-            navigationItem.title = "中午好"
-        }
-        else if timeInt! > 13 && timeInt! <= 18 {
-            navigationItem.title = "下午好"
-        }
-        else if timeInt! > 18 && timeInt! <= 23 {
-            navigationItem.title = "晚上好"
+        
+        if let time = timeInt {
+            switch time {
+            case 0...4:
+                navigationItem.title = "不要熬夜"
+            case 5...10:
+                navigationItem.title = "早上好"
+            case 11...13:
+                navigationItem.title = "中午好"
+            case 14...18:
+                navigationItem.title = "下午好"
+            case 19...23:
+                navigationItem.title = "晚上好"
+            default:
+                break
+            }
         }
     
         let dateLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 80, height: 30))
@@ -117,8 +110,8 @@ class ViewController: UIViewController {
         dateLabel.textColor = .black
         dateLabel.backgroundColor = .clear
         dateLabel.numberOfLines = 2
+        
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: dateLabel)
-//        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "\(dateString)", style: .plain, target: self, action: nil)
         navigationController?.navigationBar.barStyle = .default
         self.navigationController?.navigationBar.isTranslucent = true
     }
@@ -126,29 +119,32 @@ class ViewController: UIViewController {
 //    MARK: Banner
     func setUpBanner() {
         var img: [UIImageView] = []
+        
         banner.frame = CGRect(x: 0, y: 80, width: screenWidth, height: screenWidth - 10)
         banner.contentSize = CGSize(width: screenWidth * 5, height: screenWidth - 10)
+        
         view.addSubview(banner)
+        
         if ViewController.news != nil {
-        for i in 0..<ViewController.news.topStories.count{
-//            print(ViewController.news.topStories[i])
+        for i in 0..<ViewController.news.topStories.count {
         if let imgURLString = ViewController.news.topStories[i].image {
             let bannerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 60))
             bannerLabel.numberOfLines = 1
             bannerLabel.text = ViewController.news.topStories[i].title
-            bannerLabel.textAlignment = .natural
+            bannerLabel.textAlignment = .justified
             bannerLabel.backgroundColor = .lightText
             bannerLabel.textColor = .black
             bannerLabel.font = UIFont.preferredFont(forTextStyle: .headline)
+            
             let detailLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 20))
             detailLabel.numberOfLines = 1
             detailLabel.text = ViewController.news.topStories[i].hint
             detailLabel.textAlignment = .left
             detailLabel.backgroundColor = .clear
             detailLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
+            
             let image = UIImageView(frame: CGRect(x: screenWidth * CGFloat(i), y: 0, width: screenWidth, height: screenWidth - 10))
             image.setImageUrl(string: imgURLString)
-            
             image.addSubview(bannerLabel)
             bannerLabel.addSubview(detailLabel)
             bannerLabel.snp.makeConstraints { make in
@@ -157,6 +153,7 @@ class ViewController: UIViewController {
                 make.width.equalTo(screenWidth)
                 make.height.equalTo(60)
             }
+            
             detailLabel.snp.makeConstraints { make in
                 make.bottom.equalToSuperview().offset(-5)
                 make.left.equalToSuperview()
@@ -164,23 +161,25 @@ class ViewController: UIViewController {
                 make.width.equalToSuperview()
             }
             img.append(image)
-//            print(img[i])
         }
         }
             
         }        
+        
         banner.indicatorStyle = .white
         banner.delegate = self
         banner.minimumZoomScale = 0
         banner.maximumZoomScale = 0
         banner.bounces = true
         banner.isPagingEnabled = true
+        
         for i in 0..<ViewController.news.topStories.count{
             banner.addSubview(img[i])
         }
-//        banner.addSubview(img)
+      
     }
-//    MARK: TableView
+    
+// MARK: TableView
     func setUpTableView() {
         tableView.rowHeight = 100
         tableView.estimatedRowHeight = 100
@@ -197,12 +196,12 @@ class ViewController: UIViewController {
    
 }
 
-//MARK: - ScrollViewDelegate
+// MARK: - ScrollViewDelegate
 extension ViewController: UIScrollViewDelegate {
     
 }
 
-//MARK: - TableViewDataSource
+// MARK: - TableViewDataSource
 extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if ViewController.news == nil {
@@ -212,20 +211,16 @@ extension ViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        var cell = tableView.dequeueReusableCell(withIdentifier: "Story")
-//        cell?.img = nil
-//        cell?.configure(for: news.stories[indexPath.row])
-//        if cell == nil {
         let cell = UITableViewCell(style: .default, reuseIdentifier: "Story")
-//        }
         cell.textLabel?.text = ViewController.news.stories[indexPath.row].title
         cell.detailTextLabel?.text = ViewController.news.stories[indexPath.row].hint
         cell.detailTextLabel?.textColor = .black
+        
         let imgView = UIImageView()
         if ViewController.news == nil {
             loadStories()
-            print("empty")
         }
+        
         let imgURL = ViewController.news.stories[indexPath.row].images?[0]
         imgView.setImageUrl(string: imgURL)
         cell.contentView.addSubview(imgView)
@@ -235,21 +230,7 @@ extension ViewController: UITableViewDataSource {
             make.width.equalTo(imageWidth)
             make.height.equalTo(imageHeight)
         }
-        print(imgURL as Any)
-        
-//        let cellLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 30))
-//        cellLabel.font = UIFont.preferredFont(forTextStyle: .headline)
-//        cellLabel.text = news.stories[indexPath.row].title
-//        cellLabel.textColor = .black
-//        cellLabel.textAlignment = .left
-//        cellLabel.numberOfLines = 1
-//        cell?.contentView.addSubview(cellLabel)
-//        cellLabel.snp.makeConstraints { make in
-//            make.left.equalToSuperview().offset(imageWidth)
-//            make.top.equalToSuperview().offset(5)
-//            make.width.equalTo(screenWidth - imageWidth)
-//            make.height.equalTo(imageHeight)
-//        }
+
         let detailLabel = UILabel()
         detailLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
         detailLabel.text = ViewController.news.stories[indexPath.row].hint
@@ -262,26 +243,25 @@ extension ViewController: UITableViewDataSource {
             make.height.equalTo(30)
             make.bottom.equalToSuperview().offset(-5)
         }
+        
         cell.selectionStyle = .none
         return cell
     }
 }
 
-//MARK: - TableViewDelegate
+// MARK: - TableViewDelegate
 extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 100
     }
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return UIView()
-    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         navigationController?.pushViewController(DetailViewController(), animated: true)
         ViewController.row = indexPath.row
     }
 }
 
-//MARK: - RefreshFunc
+// MARK: - RefreshFunc
 extension ViewController {
     @objc func headerRefresh() {
         loadStories()

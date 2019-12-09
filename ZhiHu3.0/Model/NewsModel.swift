@@ -217,7 +217,7 @@ struct latestNewsHelper {
     }
 }
 
-
+// MARK: SetImageFunc
 extension UIImageView {
     func setImageUrl(string: String?) {
         if(string != nil) {
